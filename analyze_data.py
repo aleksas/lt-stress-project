@@ -111,7 +111,17 @@ if __name__ == "__main__":
         print ( stress_text(s) )
         print (  )'''
 
-    conn = sqlite3.connect('data3.sqlite.db')
+    from os.path import isfile
+    from zipfile import ZipFile
+
+    dbfname = 'data3.sqlite.db'
+    dbzipfname = 'data3.zip'
+
+    if not isfile(dbfname) and isfile(dbzipfname):
+        with ZipFile(dbzipfname, 'r') as zipObj:
+            zipObj.extractall()
+        
+    conn = sqlite3.connect(dbfname)
     cursor = conn.cursor()
     cache_cursor = conn.cursor()
 
