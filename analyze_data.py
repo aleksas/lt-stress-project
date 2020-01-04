@@ -1,4 +1,6 @@
 
+from os.path import isfile
+from zipfile import ZipFile
 import sqlite3
 import vdu_nlp_services.soap_stressor
 import vdu_nlp_services.morphological_analyzer
@@ -111,8 +113,6 @@ if __name__ == "__main__":
         print ( stress_text(s) )
         print (  )'''
 
-    from os.path import isfile
-    from zipfile import ZipFile
 
     dbfname = 'data3.sqlite.db'
     dbzipfname = 'data3.zip'
