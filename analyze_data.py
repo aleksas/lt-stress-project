@@ -5,6 +5,7 @@ import sqlite3
 import vdu_nlp_services.soap_stressor
 import vdu_nlp_services.morphological_analyzer
 from vdu_nlp_services import *
+from phonology_engine import PhonologyEngine
 
 '''for bi, annotated in enumerate(block.get_annotated()):
     elif isinstance(annotated, AnnotatedWord):
