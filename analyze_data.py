@@ -5,9 +5,10 @@ import re
 import sqlite3
 import vdu_nlp_services.soap_stressor
 import vdu_nlp_services.morphological_analyzer
-from vdu_nlp_services import *
+from vdu_nlp_services import stress_text, rebuild_text, fused_stress_replacements
 from phonology_engine import PhonologyEngine
 from re_map import Processor
+from utils import *
 
 '''for bi, annotated in enumerate(block.get_annotated()):
     elif isinstance(annotated, AnnotatedWord):
@@ -100,34 +101,6 @@ def stress_text_liepa(pe, block):
             if is_stressed and not word_detail['normalized']:
                 yield word_detail['ascii_stressed_word'], span 
 
-def compare_replacements(text, replacements_maps):
-    comparison_replacements = {}
-    has_inequalities = False
-    keys = set([])
-    for replacements in replacements_maps:
-        keys = keys.union(set(replacements.keys()))
-    
-    for k in keys:
-        equal = True
-        value = None
-        for replacements in replacements_maps:
-            if k not in replacements:
-                equal = False
-                break
-            if not value:
-                value = replacements[k]
-            if value != replacements[k]:
-                equal = False
-                break
-
-        if equal:
-            comparison_replacements[k] = value
-        else:
-            has_inequalities = True
-            comparison_replacements[k] = '|| ' + ' <> '.join([(replacements[k] if k in replacements else ' ') for replacements in replacements_maps ]) + ' ||'
-    
-    return comparison_replacements, has_inequalities
-
 if __name__ == "__main__":
     '''strings = [
         'Kiti ekspertai sako, kad pasikeitę prekybos keliai ir vidiniai nesutarimai galėjo privesti milžinišką ir galingą civilizaciją prie išnykimo.',
@@ -200,6 +173,12 @@ if __name__ == "__main__":
     pe = PhonologyEngine()
     letter_pattern = u'A-ZĄ-Ža-zą-ž'
     strip_acc = lambda x: re.sub(r'[\^~`]', '', x)
+    pattern_acc = re.compile(r'[\^~`]')
+
+    make_results = lambda dst_text, mappings: [
+            (dst_text[dst_span[0]:dst_span[1]], src_span) 
+            for src_span, dst_span in mappings if pattern_acc.search(dst_text[dst_span[0]:dst_span[1]])
+        ]
 
     for i, (article_id, index, block, url) in enumerate(cursor):
         if not block:
@@ -211,8 +190,8 @@ if __name__ == "__main__":
         exc_ = [e for e in exceptions if article_id in e['article_id']]
         fused_replacements, augmented_elements = fused_stress_replacements(block, exc_)
         fused_stress_text, fused_stress_mappings = rebuild_text(augmented_elements, fused_replacements)
-        fused_stress_results = [(fused_stress_text[stressed_span[0]:stressed_span[1]], source_span) for source_span, stressed_span in fused_stress_mappings]
-
+        fused_stress_results = make_results(fused_stress_text, fused_stress_mappings)
+        
         stressed_text = stress_text(block)
         with Processor(stressed_text) as processor:
             pattern =  r'([' + letter_pattern + r']+[\^~`][' + letter_pattern + ']*)'
@@ -221,24 +200,19 @@ if __name__ == "__main__":
 
             processor.swap()
 
-        stressed_results = [(stressed_text[stressed_span[0]:stressed_span[1]], source_span) for source_span, stressed_span in processor.span_map]
+        stressed_results = make_results(stressed_text, processor.span_map)
 
         if processor.text != block:
             raise Exception()
 
         liepa_results = list(stress_text_liepa(pe, block))
 
-        comparison_replacements, has_inequalities = compare_replacements(block, [fused_stress_results, stressed_results, liepa_results])
-
+        spans, different_spans = compare_replacements(block, [fused_stress_results, stressed_results, liepa_results])
         print (article_id, index)
-        if has_inequalities:
-            rebuilt_text = rebuild_text(augmented_elements, comparison_replacements)
-            
-            print ()
-            print (block)
-            print ()
-            print (rebuilt_text)
-                
+        print ()
+        print (block)
+        print ()
+        show_different_spans(block, different_spans)
         print ('\n=====================')
 
     conn.close()

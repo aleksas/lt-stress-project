@@ -20,3 +20,6 @@ Morphological analizer made using tools made by:
 
 
 [AUTOMATIC STRESSING OF LITHUANIAN TEXT USING DECISION TREES - Tomas Anbinderis 2010](https://pdfs.semanticscholar.org/c000/163fd3697a219b412754b7e43bd8e9613181.pdf?_ga=2.60224045.1610844738.1577029476-2121941291.1577029476)
+
+# Questions
+- How many times fused and liepa stress are equal when vdu stress is not, and other combinations.
