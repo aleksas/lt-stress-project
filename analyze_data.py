@@ -92,9 +92,13 @@ def load_cache(cursor):
     for h, text in cursor:
         vdu_nlp_services.morphological_analyzer._morphology_cache[h] = text
 
-def stress_text_liepa(pe, block):
+def stress_text_liepa(pe, block, spans):
     liepa_processed_data = pe.process(block)
-    for word_details, _, _, _ in liepa_processed_data:
+    for word_details, a, b, letter_map in liepa_processed_data:
+        for span in spans:
+            for i, j in enumerate(letter_map):
+                if span[0] == j:
+                    pass
         for word_detail in word_details:
             span = word_detail['span_source']
             is_stressed = len(_except_stress_pattern.sub('', word_detail['ascii_stressed_word'])) > 0
@@ -205,7 +209,7 @@ if __name__ == "__main__":
         if processor.text != block:
             raise Exception()
 
-        liepa_results = list(stress_text_liepa(pe, block))
+        liepa_results = list(stress_text_liepa(pe, block, [span for _, span in fused_stress_results]))
 
         spans, different_spans = compare_replacements(block, [fused_stress_results, stressed_results, liepa_results])
         print (article_id, index)
