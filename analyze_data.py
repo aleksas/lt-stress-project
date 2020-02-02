@@ -21,43 +21,24 @@ re_global_replacement = '|'.join([p for p,_ in global_replacements])
 global_replacement_pattern = re.compile(re_global_replacement)
 
 liepa_single_char_re_replacements = [
-    (u"[а-яμ🙂😀\xba\u2005\u202fΔ]", ' '),
-    (u"[âãáà]", 'a'),
+    (u"[А-Яа-яμ🙂😀\xba\u2005\u202fΔ❖]", ' '),
+    (u"[ú]", 'u'),
+    (u"[âãáāà]", 'a'),
     (u"ñ", 'n'),
+    (u'[ʼʿʾ]', "'"),
+    (u'ī', "i"),
+    (u'Ṣ', "S"),
+    (u'Ḥ', 'H'),
+    (u"π", 'p'),
+    (u"ç", 'c'),
     (u"î", 'i'),
     (u"₂", '2'),
     (u"[\u200a\u2060]", ' '),
 ]
 liepa_re_char_replacement = '|'.join([p for p,_ in liepa_single_char_re_replacements])
-liepa_re_char_replacement_pattern = re.compile(liepa_re_char_replacement, re.IGNORECASE)
+liepa_re_char_replacement_pattern = re.compile(liepa_re_char_replacement)
 
 valid_letter_pattern = re.compile(u"[a-zą-ž–-]", re.IGNORECASE)
-
-'''for bi, annotated in enumerate(block.get_annotated()):
-    elif isinstance(annotated, AnnotatedWord):
-        word = annotated.get_word()
-        wt = word.get_word()
-        annotated_type = annotated.get_type()
-        annotated_type_set = set(annotated_type.split(','))https://venturebeat.com/2019/12/03/google-details-ai-that-classifies-chest-x-rays-with-human-level-accuracy/amp/?fbclid=IwAR0-uKZT9s7xMpOitPFe3poXev-CV_jOQH6Gn0J4Yu1glk8Pgx1zdNU_RTw
-        stressed_words = {}
-        for stress in word.get_stress_options():
-            stress_type = stress.get_type()
-            stress_type_set = set(stress_type.split(','))
-            stressed_words[stress.get_word()] = len(annotated_type_set.intersection(stress_type_set))
-        
-        if len(set(stressed_words.keys())) == 0:
-            stressed_block += wt
-        elif len(set(stressed_words.keys())) == 1:
-            stressed_block += list(stressed_words.keys())[0]
-        else:
-            sorted_stressed_words = sorted(stressed_words.items(), key=lambda kv: kv[1], reverse=True)
-            stressed_block += sorted_stressed_words[0][0]
-        print (stressed_block)
-    else:
-        raise Exception()'''
-
-
-
 
 exceptions = [
     {
@@ -154,8 +135,10 @@ def stress_text_liepa(pe, block):
         for r, v in liepa_single_char_re_replacements:
             block = re.sub(r, v, block, flags=re.IGNORECASE)
 
-    liepa_processed_data = pe.process(block)
-    for word_details, a, b, letter_map in liepa_processed_data:
+    for processed_entry in pe.process(block):
+        if isinstance(processed_entry, str):
+            continue
+        word_details, a, b, letter_map = processed_entry
         for word_detail in word_details:    
             if not word_detail['word_span']:
                 continue
@@ -176,32 +159,6 @@ def stress_text_liepa(pe, block):
             yield word, source_span        
 
 if __name__ == "__main__":
-    '''strings = [
-        'Kiti ekspertai sako, kad pasikeitę prekybos keliai ir vidiniai nesutarimai galėjo privesti milžinišką ir galingą civilizaciją prie išnykimo.',
-        'Dėl to galėjo būti kalti patys majai.',
-        'A. Hitleriui buvo paskirti sargybiniai ir uždėta neperšaunama liemenė.',
-        'Į žvalgybą buvo išsiųsti lėktuvai.',
-        'Šį akmenį A. Hitleris iš karto įsakė pašalinti.',
-        'Žinoma, pirmiausia turime apibrėžti kas, šiuo atveju, yra frontas.',
-        'Šį akmenį A. Hitleris iš karto įsakė pašalinti.',
-        'Šioje vietoje trūksta namo.',
-        'Einam namo. Nerandu namo.',
-        'laba\n–--–-diena',
-        'Laba diena–draugai!\nKaip\njums -sekasi? Vienas, du, trys.',
-        'namo',
-        'shit fantastish dog',
-        'Tuo metu kai čia lankėsi A. Hitleris nebuvo jokios realios kovos - tačiau ji labai greitai galėjo įsižiebti.',
-        'Antrajame pasauliniame kare kartu su savo kariais nesitraukė iš Stalingrado mūšio lauko',
-    ]
-
-    for s in strings:
-        print ( s )
-        replacements, augmented_elements = fused_stress_text(s)
-        fused_text = rebuild_text(augmented_elements, replacements)
-        print ( fused_text )
-        print ( stress_text(s) )
-        print (  )'''
-
     dbfname = 'data3.sqlite.db'
     dbzipfname = 'data3.zip'
 
@@ -241,7 +198,7 @@ if __name__ == "__main__":
                 exceptions[i]['article_id'] = []
             exceptions[i]['article_id'].append(res[0])
 
-    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id >= 4838')
+    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id >= 5825')
 
     pe = PhonologyEngine()
     letter_pattern = u'A-ZĄ-Ža-zą-ž'
@@ -271,7 +228,6 @@ if __name__ == "__main__":
         fused_stress_results = make_results(fused_stress_text, fused_stress_mappings)
 
         pattern =  r'([' + letter_pattern + r']+[\^~`]([' + letter_pattern + r']*[\^~`]?))'
-        #pattern =  r'(([' + letter_pattern + r']+[\^~`][' + letter_pattern + r']*){1,2})'
 
         pattern_exceptions = []
         for m in re.finditer(pattern, block):
@@ -282,15 +238,16 @@ if __name__ == "__main__":
             replacement_map = { 1: strip_acc }
             processor.process(pattern, replacement_map, exceptions=pattern_exceptions)
             processor.swap()
-
+            
         stressed_results = make_results(stressed_text, processor.span_map)
 
-        if processor.text != block:# and 'E=mc^{2}' not in block:
+        if processor.text != block:
             raise Exception()
 
         try:
             liepa_results = list(stress_text_liepa(pe, block))
         except UnicodeEncodeError as e:
+            bad_string = e.object[e.start:e.end]
             liepa_results = list(stress_text_liepa(pe, block))
 
         spans, different_spans = compare_replacements(block, [fused_stress_results, stressed_results, liepa_results])
