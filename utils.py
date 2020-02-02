@@ -22,6 +22,7 @@ def compare_replacements(text, replacement_results):
     spans.sort(key=lambda x: x[0])
     different_spans = []
     for span, words in spans:
+        words = {k:v.lower() for k,v in words.items()}
         word_set = set(words.values())
         if len(words) == result_len and len(word_set) == 1:
             different_spans.append( (span, list(word_set)[0]) )
