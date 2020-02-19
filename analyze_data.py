@@ -9,34 +9,101 @@ from vdu_nlp_services import stress_text, rebuild_text, fused_stress_replacement
 from vdu_nlp_services.fused_stressor import _stress_re
 from phonology_engine import PhonologyEngine
 from re_map import Processor
+import difflib
+from corner_cases import cases
 from utils import *
+
+fused_prepare_pattern = re.compile(r'(\w)[`~^]')
+
+lett = u'A-Za-zĄ-Žą-ž'
 
 global_replacements = [
     (u'\xa0', u' '),
     (u'\xad', u''),
-    (u'Nebesu-modama', u'Nebesumodama'),
-    (u'Kaž-kas', u'Kažkas')
+    (u'…', u'...'),
+    #(u'Nebesu-modama', u'Nebesumodama'),
+    (r'\(([' + lett + r']+)\)', r' \1 '),
+    (r'([' + lett + r']+)[-—]', r'\1 '),
+    (r'[-—]([' + lett + r']+)', r' \1'),
+    (r'(?<!\w)([A-Z])\.([A-Za-z])', r'\1 \2'),
+
+    (r'([' + lett + r']+)[~`^]([' + lett + r']*)', r'\1\2'),
+
+    (u"[âåãáǎäăāàá]", 'a'),
+    (u'[îīíiîīĭíìiıі]', "i"),
+    (u'[ùüüú]', "u"),
+    (u'[èêééëё]', 'e'),
+    (u'[ôöóòø]', "o"),
+    (u'ð', "d"),
+    (u'[ØŐ]', "O"),
+    (u'″', '"'),
+    (r' a\.a\. ', ' a a '),
+
+
+    # https://jrgraphix.net/research/unicode_blocks.php
+    (u'[\u0370-\u03FF]', ' '), #Greek and Coptic
+    (u'[\u4E00-\u62FF\u6300-\u77FF\u7800-\u8CFF\u8D00-\u9FFF]', ' '), #CJK Unified Ideographs
+    (u"[\u0400-\u04FF\u0500-\u052F]", ' '), #Cyrillic
+    (u"[\u2100-\u214F]", ' '), #Letterlike Symbols
+    (u"[\u2200-\u22FF]", ' '), # Mathematical Operators
+    (u"[\u2150-\u218F]", ' '), # Number Forms
+    (u"[\uFE70-\uFEFF]", ' '), # Arabic Presentation Forms-B
+    (u"[\u2600-\u26FF]", ' '), # Miscellaneous Symbols
+    (u"[\u2300-\u23FF]", ' '), # Miscellaneous Technical
+    (u"[\u1F00-\u1FFF]", ' '), # Greek Extended
+    
+    #Combining Diacritical Marks
+    (u'[\u0300-\u036F]', ''),
+
+    # turkish
+    (u"ç", 'c'), (u"Ç", 'C'), (u"ç", 'c'), (u"Ç", 'C'), (u"ğ", 'g'), (u"Ğ", 'G'), 
+    (u"Ö", 'O'), (u"ö", 'o'), (u"Ş", 'S'), (u"ş", 's'), (u"Ü", 'U'), (u"ü", 'u'),  
+    #hebrew'
+    (u'[\u0591-\u05f4]', ' '),
+
+    (u'[\u2184]', ' '),
+
+    (u"[🙂😉😀\xba\u2005\u2009\u2002\u202f⁹❖◄¡∝]", ' '),
+    (u"Á", 'A'),
+    (u'№', 'Nr.'),
+    (u'℃', 'C'),
+    (u"ñ", 'n'),
+    (u'[ʼʿʾ]', "'"),
+    (u'[−˗‐]', "-"),
+    (u'[čč]', "č"),
+    (u'ỹ', "y"),
+    (u'ą', "ą"),
+    (u'į', "į"),
+    (u'Ê', "E"),
+    (u'ū', "ū"),
+    (u'ų', "ų"),
+    (u'š', "š"),
+    (u'ė', "ė"),
+    (u'Ṣ', "S"),
+    (u'Š', "Š"),
+    (u'Ḥ', 'H'),
+    (u'ř', 'r'),
+    (u"π", 'p'),
+    (u"ḥ", 'h'),
+    (u"ç", 'c'),
+    (u"ƒ", 'f'),
+    (u"\u03b2", u'b'),
+    (u"₂", '2'),
+    (u"[\u200a\u2060]", ' '),
+
+    (r'“\[', r'“ ['),
+    #(u"[蔡英文]", ' '),
+
+    (r'(\w+)[\'`](\w+)', r'\1\2'),
+    #(u'Kaž-kas', u'Kažkas'),
+    #(u'a-ha', u'aha'),
+    #(u'Watergate`o', u'Watergateoo'),
+    (u'diskusija@circulareconomy', u'diskusija et circulareconomy')
 ]
+
 re_global_replacement = '|'.join([p for p,_ in global_replacements])
 global_replacement_pattern = re.compile(re_global_replacement)
 
-liepa_single_char_re_replacements = [
-    (u"[А-Яа-яμ🙂😀\xba\u2005\u202fΔ❖]", ' '),
-    (u"[ú]", 'u'),
-    (u"[âãáāà]", 'a'),
-    (u"ñ", 'n'),
-    (u'[ʼʿʾ]', "'"),
-    (u'ī', "i"),
-    (u'Ṣ', "S"),
-    (u'Ḥ', 'H'),
-    (u"π", 'p'),
-    (u"ç", 'c'),
-    (u"î", 'i'),
-    (u"₂", '2'),
-    (u"[\u200a\u2060]", ' '),
-]
-liepa_re_char_replacement = '|'.join([p for p,_ in liepa_single_char_re_replacements])
-liepa_re_char_replacement_pattern = re.compile(liepa_re_char_replacement)
 
 valid_letter_pattern = re.compile(u"[a-zą-ž–-]", re.IGNORECASE)
 
@@ -44,22 +111,22 @@ exceptions = [
     {
         'article_url': 'http://pakeliui.popo.lt/2019/01/23/apie-tikejima-ir-pasitikejima/',
         'block_index': [4, 5, 7],
-        'sub': (u'Doubeyazt', u'Doğubeyazıt')
+        'sub': (u'Doubeyazt', u'Dogubeyazit')
     }, 
     {
         'article_url': 'http://pakeliui.popo.lt/2019/01/23/apie-tikejima-ir-pasitikejima/',
         'block_index': [4, 5, 7],
-        'sub': (u'Doubeyazt', u'Doğubeyazıt')
+        'sub': (u'Doubeyazt', u'Dogubeyazit')
     }, 
     {
         'article_url': 'http://www.technologijos.lt/n/mokslas/istorija_ir_archeologija/S-77994/straipsnis/Radinys-naciu-stovykloje-irodo-tai-ka-politikai-bande-paneigti',
         #'block_index': [2, 3, 8],
-        'sub': (u'Vaeka', u'Vařeka')
+        'sub': (u'Vaeka', u'Vareka')
     },
     {
         'article_url': 'http://www.technologijos.lt/n/mokslas/istorija_ir_archeologija/S-77994/straipsnis/Radinys-naciu-stovykloje-irodo-tai-ka-politikai-bande-paneigti',
         #'block_index': [2, 3, 8],
-        'sub': (u'Vaekos', u'Vařekos')
+        'sub': (u'Vaekos', u'Varekos')
     },
     {
         'article_url': 'http://www.technologijos.lt/n/mokslas/idomusis_mokslas/S-77663/straipsnis/Skaiciavimo-masinu-istorija-kur-yra-pati-silpniausia-daugumos-siuolaikiniu-procesoriu-vieta-kaip-atsirado-ir-kas-negerai-su-voniNeumanno-architektura-ir-ka-tokio-ekspertai-surado-Intel-procesoriuose-',
@@ -69,17 +136,14 @@ exceptions = [
 ]
 
 _except_stress_pattern = re.compile('[^~`^]')
-
+_subblock_pattern = re.compile(r'(.*[!?\.]?)(\s+\n)|(.*[!?\.]?)([ \n]*)|([ \n]*)([A-ZĄ-Ž].*)')
 
 def stress_text_ex(text, version='8.0'):
-    single_word = len(text.strip().split()) == 1
+    res = ''
 
-    output = stress_text(text, version)
-
-    if single_word:
-        return collapse_stress_options(text.strip(), output)
-    
-    return output
+    output = stress_text('_.' + text, version)[2:]
+    res = restore_vdu_stressed_text(text, output)
+    return res
 
 def collapse_stress_options(word, output):
     raw_stress_options = filter(None, output.split('\n'))
@@ -89,7 +153,7 @@ def collapse_stress_options(word, output):
     for rso in raw_stress_options:
         m = _stress_re.match(rso)
         if m:
-            stressed_word = m.group(1)
+            stressed_word = m.word(1)
             grammar_specs = m.group(2).split(' ') if m.group(2) else []
             stress_options.append( (stressed_word, grammar_specs) )
         else:
@@ -129,34 +193,7 @@ def load_cache(cursor):
     cursor.execute('SELECT `hash`, `text` FROM `morphology_cache`')
     for h, text in cursor:
         vdu_nlp_services.morphological_analyzer._morphology_cache[h] = text
-
-def stress_text_liepa(pe, block):
-    if liepa_re_char_replacement_pattern.search(block):
-        for r, v in liepa_single_char_re_replacements:
-            block = re.sub(r, v, block, flags=re.IGNORECASE)
-
-    for processed_entry in pe.process(block):
-        if isinstance(processed_entry, str):
-            continue
-        word_details, a, b, letter_map = processed_entry
-        for word_detail in word_details:    
-            if not word_detail['word_span']:
-                continue
-            span = word_detail['word_span']
-            word_letter_map = letter_map[span[0]:span[1]]
-            word_letter_map_set = set( word_letter_map )
-            normalized = len ( word_letter_map_set ) != len (word_letter_map)
-            if normalized:
-                continue
-            source_span = letter_map[span[0]], letter_map[span[1] - 1] + 1
-            word = word_detail['ascii_stressed_word']
-            orig_word = block[source_span[0]:source_span[1]]
-            if not set(word).intersection(set('^`~')):
-                continue
-            orig_word_ = block[max(0, source_span[0] - 2):min(len(block), source_span[1] + 2)]
-            if orig_word.replace("'", '').lower() != word.replace('`', '').replace('^', '').replace('~', '').lower():
-                raise Exception()
-            yield word, source_span        
+  
 
 if __name__ == "__main__":
     dbfname = 'data3.sqlite.db'
@@ -198,14 +235,16 @@ if __name__ == "__main__":
                 exceptions[i]['article_id'] = []
             exceptions[i]['article_id'].append(res[0])
 
-    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id >= 5825')
+    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id >= 6577')
 
     pe = PhonologyEngine()
-    letter_pattern = u'A-ZĄ-Ža-zą-ž'
     strip_acc = lambda x: re.sub(r'[\^~`]', '', x)
     pattern_acc = re.compile(r'[\^~`]')
 
-    make_results = lambda dst_text, mappings: [
+    letter_pattern = u'A-ZĄ-Ža-zą-ž'
+    pattern =  r'([' + letter_pattern + r']+[\^~`]([' + letter_pattern + r']+[\^~`]?)*)'
+
+    make_stress_results = lambda dst_text, mappings: [
             (dst_text[dst_span[0]:dst_span[1]], src_span) 
             for src_span, dst_span in mappings if pattern_acc.search(dst_text[dst_span[0]:dst_span[1]])
         ]
@@ -219,19 +258,22 @@ if __name__ == "__main__":
         
 
         if global_replacement_pattern.search(block):
-            for p,v in global_replacements:
-                block = block.replace(p, v)
+            for p, repl in global_replacements:
+                block = re.sub(p, repl, block)
+    
+        pattern_exceptions = []
+        for m in re.finditer(pattern, block):
+            word = m.group()
+            pattern_exceptions.append((re.escape(word), word))
+            pattern_exceptions.append((re.escape(stress_text_ex(word)), word))
 
+        if (article_id, index) in cases:
+            article_id = article_id
+            
         exc_ = [e for e in exceptions if article_id in e['article_id']]
         fused_replacements, augmented_elements = fused_stress_replacements(block, exc_)
         fused_stress_text, fused_stress_mappings = rebuild_text(augmented_elements, fused_replacements)
-        fused_stress_results = make_results(fused_stress_text, fused_stress_mappings)
-
-        pattern =  r'([' + letter_pattern + r']+[\^~`]([' + letter_pattern + r']*[\^~`]?))'
-
-        pattern_exceptions = []
-        for m in re.finditer(pattern, block):
-            pattern_exceptions.append(m.group(0))
+        fused_stress_results = make_stress_results(fused_stress_text, fused_stress_mappings)
         
         stressed_text = stress_text_ex(block)
         with Processor(stressed_text) as processor:
@@ -239,9 +281,19 @@ if __name__ == "__main__":
             processor.process(pattern, replacement_map, exceptions=pattern_exceptions)
             processor.swap()
             
-        stressed_results = make_results(stressed_text, processor.span_map)
+        stressed_results = make_stress_results(stressed_text, processor.span_map)
 
-        if processor.text != block:
+        if processor.text.strip() != block.strip(): 
+            print()   
+            for i,s in enumerate(difflib.ndiff(block, re.sub(r'[~`^]', '', stressed_text))):
+                if s[0]==' ': continue
+                elif s[0]=='-':
+                    print(u'Delete "{}" from position {}'.format(s[-1],i))
+                elif s[0]=='+':
+                    print(u'Add "{}" to position {}'.format(s[-1],i)) 
+                    pos = None
+                       
+            print()   
             raise Exception()
 
         try:
@@ -251,11 +303,12 @@ if __name__ == "__main__":
             liepa_results = list(stress_text_liepa(pe, block))
 
         spans, different_spans = compare_replacements(block, [fused_stress_results, stressed_results, liepa_results])
-        print (article_id, index)
-        print ()
-        print (block)
-        print ()
-        show_different_spans(block, different_spans)
-        print ('\n=====================')
+        print ('\r%d, %d     ' % (article_id, index), end='')
+        #print (article_id, index)
+        #print ()
+        #print (block)
+        #print ()
+        #show_different_spans(block, different_spans)
+        #print ('\n=====================')
 
     conn.close()
