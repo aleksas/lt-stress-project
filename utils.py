@@ -1,6 +1,8 @@
 import re
 import difflib
 
+stress_re = re.compile(r'[~`^]')
+
 #restore_pattern = re.compile(r'(\s+)([~`^])')
 letter_pattern = re.compile(r'[A-Za-z' + u'Ą-Žą-ž' + r']')
 
@@ -55,7 +57,7 @@ def compare_replacements(text, replacement_results):
 
     return spans, different_spans
 
-def show_different_spans(text, different_spans):
+def show_text_with_different_spans(text, different_spans):
     for span, words in reversed(different_spans):
         if isinstance(words, dict):
             text = text[:span[0]] + '|> ' + ' '.join(['%d:%s' % each for each in words.items() ]) + ' <|' + text[span[1]:]
@@ -63,6 +65,23 @@ def show_different_spans(text, different_spans):
             text = text[:span[0]] + words + text[span[1]:] 
 
     print (text)
+
+def test_different_stresses(text, spans):
+    for span, words in reversed(spans):
+        if isinstance(words, dict):
+            words = list(words.values())
+            words_ = [w for w in words if w]
+            word = stress_re.sub('', words_[0])
+            for w in words[1:]:
+               w = stress_re.sub('', w)
+
+               if w != word:
+                   raise Exception('%s != %s' % (word, w))
+
+def show_different_spans(text, different_spans):
+    for _, words in reversed(different_spans):
+        if isinstance(words, dict):
+            print ( ' '.join(['%d:%s' % each for each in words.items() ]) )
 
 liepa_single_char_re_replacements = []
 liepa_re_char_replacement = '|'.join([p for p,_ in liepa_single_char_re_replacements])

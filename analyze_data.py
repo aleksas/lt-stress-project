@@ -31,27 +31,38 @@ global_replacements = [
 
     (u"[âåãáǎäăāàá]", 'a'),
     (u'[îīíiîīĭíìiıі]', "i"),
-    (u'[ùüüú]', "u"),
+    (u'[ùüüûú]', "u"),
     (u'[èêééëё]', 'e'),
-    (u'[ôöóòø]', "o"),
+    (u'[ôöőóòø]', "o"),
+    (u'[ʞ]', "k"),
+    (u'[ɯ]', "m"),
+    (u'[ǝ]', "e"),
     (u'ð', "d"),
     (u'[ØŐ]', "O"),
     (u'″', '"'),
     (r' a\.a\. ', ' a a '),
+    (r' a\. a\. ', ' a a '),
+    (r'TU Wien  Viena', 'TU Viena'),
+    (u'[−˗‐‐‑‒–—―]', "-"),
 
 
     # https://jrgraphix.net/research/unicode_blocks.php
+    (u'[\u02B0-\u02FF]', ' '), # Spacing Modifier Letters
     (u'[\u0370-\u03FF]', ' '), #Greek and Coptic
     (u'[\u4E00-\u62FF\u6300-\u77FF\u7800-\u8CFF\u8D00-\u9FFF]', ' '), #CJK Unified Ideographs
     (u"[\u0400-\u04FF\u0500-\u052F]", ' '), #Cyrillic
-    (u"[\u2100-\u214F]", ' '), #Letterlike Symbols
-    (u"[\u2200-\u22FF]", ' '), # Mathematical Operators
-    (u"[\u2150-\u218F]", ' '), # Number Forms
-    (u"[\uFE70-\uFEFF]", ' '), # Arabic Presentation Forms-B
-    (u"[\u2600-\u26FF]", ' '), # Miscellaneous Symbols
-    (u"[\u2300-\u23FF]", ' '), # Miscellaneous Technical
+    (u"[\u0600-\u06FF]", ' '), # Arabic
     (u"[\u1F00-\u1FFF]", ' '), # Greek Extended
-    
+    (u"[\u2100-\u214F]", ' '), # Letterlike Symbols
+    (u"[\u2150-\u218F]", ' '), # Number Forms
+    (u"[\u2200-\u22FF]", ' '), # Mathematical Operators
+    (u"[\u2300-\u23FF]", ' '), # Miscellaneous Technical
+    (u"[\u2600-\u26FF]", ' '), # Miscellaneous Symbols
+    (u"[\u2070-\u209F]", ' '), # Superscripts and Subscripts
+    (u"[\uE000-\uF8FF]", ' '), # Private Use Area    
+    (u"[\uFE70-\uFEFF]", ' '), # Arabic Presentation Forms-B
+    (u"[\U0001D400-\U0001D7FF]", ' '), # Mathematical Alphanumeric Symbols
+
     #Combining Diacritical Marks
     (u'[\u0300-\u036F]', ''),
 
@@ -63,13 +74,14 @@ global_replacements = [
 
     (u'[\u2184]', ' '),
 
+    
+
     (u"[🙂😉😀\xba\u2005\u2009\u2002\u202f⁹❖◄¡∝]", ' '),
     (u"Á", 'A'),
     (u'№', 'Nr.'),
     (u'℃', 'C'),
     (u"ñ", 'n'),
     (u'[ʼʿʾ]', "'"),
-    (u'[−˗‐]', "-"),
     (u'[čč]', "č"),
     (u'ỹ', "y"),
     (u'ą', "ą"),
@@ -235,7 +247,7 @@ if __name__ == "__main__":
                 exceptions[i]['article_id'] = []
             exceptions[i]['article_id'].append(res[0])
 
-    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id >= 6577')
+    cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id >= 0')
 
     pe = PhonologyEngine()
     strip_acc = lambda x: re.sub(r'[\^~`]', '', x)
@@ -304,6 +316,7 @@ if __name__ == "__main__":
 
         spans, different_spans = compare_replacements(block, [fused_stress_results, stressed_results, liepa_results])
         print ('\r%d, %d     ' % (article_id, index), end='')
+        test_different_stresses(block, spans)
         #print (article_id, index)
         #print ()
         #print (block)
