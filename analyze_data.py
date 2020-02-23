@@ -45,36 +45,8 @@ global_replacements = [
     (r'TU Wien  Viena', 'TU Viena'),
     (u'[−˗‐‐‑‒–—―]', "-"),
 
-
-    # https://jrgraphix.net/research/unicode_blocks.php
-    (u'[\u02B0-\u02FF]', ' '), # Spacing Modifier Letters
-    (u'[\u0370-\u03FF]', ' '), #Greek and Coptic
-    (u'[\u4E00-\u62FF\u6300-\u77FF\u7800-\u8CFF\u8D00-\u9FFF]', ' '), #CJK Unified Ideographs
-    (u"[\u0400-\u04FF\u0500-\u052F]", ' '), #Cyrillic
-    (u"[\u0600-\u06FF]", ' '), # Arabic
-    (u"[\u1F00-\u1FFF]", ' '), # Greek Extended
-    (u"[\u2100-\u214F]", ' '), # Letterlike Symbols
-    (u"[\u2150-\u218F]", ' '), # Number Forms
-    (u"[\u2200-\u22FF]", ' '), # Mathematical Operators
-    (u"[\u2300-\u23FF]", ' '), # Miscellaneous Technical
-    (u"[\u2600-\u26FF]", ' '), # Miscellaneous Symbols
-    (u"[\u2070-\u209F]", ' '), # Superscripts and Subscripts
-    (u"[\uE000-\uF8FF]", ' '), # Private Use Area    
-    (u"[\uFE70-\uFEFF]", ' '), # Arabic Presentation Forms-B
-    (u"[\U0001D400-\U0001D7FF]", ' '), # Mathematical Alphanumeric Symbols
-
-    #Combining Diacritical Marks
-    (u'[\u0300-\u036F]', ''),
-
-    # turkish
     (u"ç", 'c'), (u"Ç", 'C'), (u"ç", 'c'), (u"Ç", 'C'), (u"ğ", 'g'), (u"Ğ", 'G'), 
-    (u"Ö", 'O'), (u"ö", 'o'), (u"Ş", 'S'), (u"ş", 's'), (u"Ü", 'U'), (u"ü", 'u'),  
-    #hebrew'
-    (u'[\u0591-\u05f4]', ' '),
-
-    (u'[\u2184]', ' '),
-
-    
+    (u"Ö", 'O'), (u"ö", 'o'), (u"Ş", 'S'), (u"ş", 's'), (u"Ü", 'U'), (u"ü", 'u'),
 
     (u"[🙂😉😀\xba\u2005\u2009\u2002\u202f⁹❖◄¡∝]", ' '),
     (u"Á", 'A'),
@@ -104,48 +76,36 @@ global_replacements = [
     (u"[\u200a\u2060]", ' '),
 
     (r'“\[', r'“ ['),
-    #(u"[蔡英文]", ' '),
 
     (r'(\w+)[\'`](\w+)', r'\1\2'),
     #(u'Kaž-kas', u'Kažkas'),
     #(u'a-ha', u'aha'),
     #(u'Watergate`o', u'Watergateoo'),
-    (u'diskusija@circulareconomy', u'diskusija et circulareconomy')
+    (u'diskusija@circulareconomy', u'diskusija et circulareconomy'),
+
+    # https://jrgraphix.net/research/unicode_blocks.php
+    (u'[\u02B0-\u02FF]', ' '), # Spacing Modifier Letters
+    (u'[\u0300-\u036F]', ''), #Combining Diacritical Marks
+    (u'[\u0370-\u03FF]', ' '), #Greek and Coptic
+    (u'[\u4E00-\u62FF\u6300-\u77FF\u7800-\u8CFF\u8D00-\u9FFF]', ' '), #CJK Unified Ideographs
+    (u"[\u0400-\u04FF\u0500-\u052F]", ' '), #Cyrillic
+    (u'[\u0591-\u05f4]', ' '), # Hebrew'
+    (u"[\u0600-\u06FF]", ' '), # Arabic
+    (u"[\u1F00-\u1FFF]", ' '), # Greek Extended
+    (u"[\u2100-\u214F]", ' '), # Letterlike Symbols
+    (u"[\u2150-\u218F]", ' '), # Number Forms
+    (u"[\u2200-\u22FF]", ' '), # Mathematical Operators
+    (u"[\u2300-\u23FF]", ' '), # Miscellaneous Technical
+    (u"[\u2600-\u26FF]", ' '), # Miscellaneous Symbols
+    (u"[\u2070-\u209F]", ' '), # Superscripts and Subscripts
+    (u"[\uE000-\uF8FF]", ' '), # Private Use Area    
+    (u"[\uFE70-\uFEFF]", ' '), # Arabic Presentation Forms-B
+    (u"[\U0001D400-\U0001D7FF]", ' '), # Mathematical Alphanumeric Symbols
 ]
 
 re_global_replacement = '|'.join([p for p,_ in global_replacements])
 global_replacement_pattern = re.compile(re_global_replacement)
 
-
-valid_letter_pattern = re.compile(u"[a-zą-ž–-]", re.IGNORECASE)
-
-exceptions = [
-    {
-        'article_url': 'http://pakeliui.popo.lt/2019/01/23/apie-tikejima-ir-pasitikejima/',
-        'block_index': [4, 5, 7],
-        'sub': (u'Doubeyazt', u'Dogubeyazit')
-    }, 
-    {
-        'article_url': 'http://pakeliui.popo.lt/2019/01/23/apie-tikejima-ir-pasitikejima/',
-        'block_index': [4, 5, 7],
-        'sub': (u'Doubeyazt', u'Dogubeyazit')
-    }, 
-    {
-        'article_url': 'http://www.technologijos.lt/n/mokslas/istorija_ir_archeologija/S-77994/straipsnis/Radinys-naciu-stovykloje-irodo-tai-ka-politikai-bande-paneigti',
-        #'block_index': [2, 3, 8],
-        'sub': (u'Vaeka', u'Vareka')
-    },
-    {
-        'article_url': 'http://www.technologijos.lt/n/mokslas/istorija_ir_archeologija/S-77994/straipsnis/Radinys-naciu-stovykloje-irodo-tai-ka-politikai-bande-paneigti',
-        #'block_index': [2, 3, 8],
-        'sub': (u'Vaekos', u'Varekos')
-    },
-    {
-        'article_url': 'http://www.technologijos.lt/n/mokslas/idomusis_mokslas/S-77663/straipsnis/Skaiciavimo-masinu-istorija-kur-yra-pati-silpniausia-daugumos-siuolaikiniu-procesoriu-vieta-kaip-atsirado-ir-kas-negerai-su-voniNeumanno-architektura-ir-ka-tokio-ekspertai-surado-Intel-procesoriuose-',
-        #'block_index': [2, 3, 8],
-        'sub': (u'Erds', u'Erdős')
-    }
-]
 
 _except_stress_pattern = re.compile('[^~`^]')
 _subblock_pattern = re.compile(r'(.*[!?\.]?)(\s+\n)|(.*[!?\.]?)([ \n]*)|([ \n]*)([A-ZĄ-Ž].*)')
@@ -240,13 +200,6 @@ if __name__ == "__main__":
 
     load_cache(cursor)
 
-    for i, exception in enumerate(exceptions):
-        cursor.execute('SELECT id FROM articles WHERE `url` = ?', (exception['article_url'],))
-        for res in cursor:
-            if 'article_id' not in exceptions[i]:
-                exceptions[i]['article_id'] = []
-            exceptions[i]['article_id'].append(res[0])
-
     cursor.execute('SELECT article_id, `index`, block, url FROM article_blocks JOIN articles ON article_id = id WHERE article_id >= 0')
 
     pe = PhonologyEngine()
@@ -282,8 +235,8 @@ if __name__ == "__main__":
         if (article_id, index) in cases:
             article_id = article_id
             
-        exc_ = [e for e in exceptions if article_id in e['article_id']]
-        fused_replacements, augmented_elements = fused_stress_replacements(block, exc_)
+        #exc_ = [e for e in exceptions if article_id in e['article_id']]
+        fused_replacements, augmented_elements = fused_stress_replacements(block)#, exc_)
         fused_stress_text, fused_stress_mappings = rebuild_text(augmented_elements, fused_replacements)
         fused_stress_results = make_stress_results(fused_stress_text, fused_stress_mappings)
         
