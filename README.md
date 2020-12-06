@@ -23,3 +23,4 @@ Morphological analizer made using tools made by:
 
 # Questions
 - How many times fused and liepa stress are equal when vdu stress is not, and other combinations.
+- How well different stressors perform on homoforms?
