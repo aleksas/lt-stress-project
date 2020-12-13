@@ -1,0 +1,16 @@
+version: "3.3"
+services:
+  serve:
+    build:
+      context: .
+      dockerfile: lt-stress-serve.Dockerfile
+    image: aleksas/lt-stress-query:0.0.2
+  query:
+    build:
+      context: .
+      dockerfile: lt-stress-query.Dockerfile
+      args:
+        MODEL_SERVER_ADDRESS: serve:8500
+    image: aleksas/lt-stress-serve:0.0.2
+    depends_on:
+      - serve

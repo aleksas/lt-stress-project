@@ -33,7 +33,6 @@ WORKDIR ${DATA_DIR}
 
 RUN wget https://github.com/aleksas/lt-stress-project/releases/download/0.0.2/vocab.translate_ltlts_wmt32k.32768.subwords
 
-
 WORKDIR /root
 RUN echo "t2t-query-server  \
     --server=${MODEL_SERVER_ADDRESS} \
