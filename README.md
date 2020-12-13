@@ -1,3 +1,12 @@
+# Current status
+- Stress
+  - [This release](https://github.com/aleksas/lt-stress-project/releases/tag/0.0.2) contains
+    - [jupyter notebook](https://github.com/aleksas/lt-stress-project/releases/download/0.0.2/Cleanup_of_Transformer_translate.ipynb) for running in google colloab. It uses google drive to store intermediate data, checkponts and export model to.
+    - [exported tf model](https://github.com/aleksas/lt-stress-project/releases/download/0.0.2/1607278770-20201206T182228Z-001.zip) ready for serving.
+    - dockerfile for running model server
+- Synth
+  - dockerfile for running jupyter notebook with sinthesizer
+
 # Todo
 
 - Update phonology engine to allow exact stressing withoutnormalizing.
