@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: lt-stress-serve.Dockerfile
     image: aleksas/lt-stress-query:0.0.2
-  query:
+  query: # WILL NOT WORK AS INTEDET DUE TO NON-INTERACTIVE COMPOSE AND INTERACTIVE QUERY TERMINAL
     build:
       context: .
       dockerfile: lt-stress-query.Dockerfile
