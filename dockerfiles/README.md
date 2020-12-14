@@ -21,3 +21,7 @@ docker build -t aleksas/lt-stress-query:0.0.2 -f lt-stress-query.Dockerfile .
 ```sh
 docker run  aleksas/lt-stress-query:0.0.2
 ```
+
+
+# Compose
+Not working in current state because docker compose is menatn for orkestration and is not interactive. In contrast query contatiner requires interaction. As a result it just doesnt work. But can be used later to make a website or smthing.
