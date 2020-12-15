@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:1.15.4
+FROM tensorflow/tensorflow:1.15.3
 
 ARG MODEL_SERVER_ADDRESS=172.17.0.1:8500
 # USE "/sbin/ip route|awk '/default/ { print $3 }'" to determine host ip address
@@ -14,9 +14,12 @@ ENV PROBLEM_DIR=/problems/${PROBLEM_NAME}
 RUN apt update
 RUN apt -y install wget
 
-RUN pip install oauth2client requests tf_slim scipy sympy tqdm gym pillow pypng google-api-python-client
-RUN pip install tensorflow-serving-api==1.15.0 tensorflow_probability==0.7.0 tensorflow-datasets==3.0.0
-RUN pip install tensor2tensor==1.15.0 --no-deps
+#RUN pip install oauth2client requests tf_slim scipy sympy tqdm gym pillow pypng google-api-python-client
+#RUN pip install tensorflow-serving-api==1.15.0 tensorflow_probability==0.7.0 tensorflow-datasets==3.0.0
+#RUN pip install tensor2tensor==1.15.0 --no-deps
+
+ADD requirements.txt /root
+RUN pip install -r /root/requirements.txt
 
 # DOWNLOAD PROBLEM
 
@@ -41,4 +44,5 @@ RUN echo "t2t-query-server  \
     --t2t_usr_dir=${PROBLEM_DIR} \
     --data_dir=${DATA_DIR}" > run.sh
 
-ENTRYPOINT [ "/bin/bash", "/root/run.sh" ]
+# LOOP endlessly for someone to attach
+ENTRYPOINT [ "/bin/sh", "-c", "--", "while true; do sleep 30; done;" ]
