@@ -1,0 +1,25 @@
+{
+    "configuration": [{
+      "source_language": "lt",
+      "target_language": "lts",
+      "label": "transformers_wmt32k",
+      "transformer": {
+        "model": "transformer",
+        "model_dir": "/models/stress-transformer-lite-v1",
+        "data_dir": "/data/stress-transformer-lite-v1",
+        "hparams": "",
+        "hparams_set": "transformer_tiny",
+        "problem": "translate_ltlts_wmt32k",
+        "user_dir": "/problems/translate_ltlts_wmt32k",
+        "usr_dir": "/problems/translate_ltlts_wmt32k",
+        "t2t_usr_dir": "/problems/translate_ltlts_wmt32k"
+      }
+    }],
+    "language": [{
+      "code": "lt",
+      "name": "Lithuanian"
+    },{
+      "code": "lts",
+      "name": "Lithuanian Stressed"
+    }]
+  }

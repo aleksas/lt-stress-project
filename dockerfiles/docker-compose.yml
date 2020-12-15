@@ -5,12 +5,21 @@ services:
       context: .
       dockerfile: lt-stress-serve.Dockerfile
     image: aleksas/lt-stress-query:0.0.2
-  query: # WILL NOT WORK AS INTEDET DUE TO NON-INTERACTIVE COMPOSE AND INTERACTIVE QUERY TERMINAL
-    build:
-      context: .
-      dockerfile: lt-stress-query.Dockerfile
-      args:
-        MODEL_SERVER_ADDRESS: serve:8500
-    image: aleksas/lt-stress-serve:0.0.2
-    depends_on:
-      - serve
+  #query: # WILL NOT WORK AS INTEDET DUE TO NON-INTERACTIVE COMPOSE AND INTERACTIVE QUERY TERMINAL
+  #  build:
+  #    context: .
+  #    dockerfile: lt-stress-query.Dockerfile
+  #    args:
+  #      MODEL_SERVER_ADDRESS: serve:8500
+  #  image: aleksas/lt-stress-query:0.0.2
+  #  depends_on:
+  #    - serve
+  #insights: # WILL NOT WORK AS INTEDET DUE TO NON-INTERACTIVE COMPOSE AND INTERACTIVE QUERY TERMINAL
+  #  build:
+  #    context: .
+  #    dockerfile: lt-stress-insights.Dockerfile
+  #    args:
+  #      MODEL_SERVER_ADDRESS: serve:8500
+  #  image: aleksas/lt-stress-insights:0.0.2
+  #  depends_on:
+  #    - serve
