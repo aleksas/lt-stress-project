@@ -44,5 +44,10 @@ RUN echo "t2t-query-server  \
     --t2t_usr_dir=${PROBLEM_DIR} \
     --data_dir=${DATA_DIR}" > run.sh
 
-# LOOP endlessly for someone to attach
-ENTRYPOINT [ "/bin/sh", "-c", "--", "while true; do sleep 30; done;" ]
+RUN pip install flask
+
+RUN mkdir -p /root/app
+ADD index.html /root/app
+ADD app.py /root/app
+WORKDIR /root/app
+ENTRYPOINT [ "flask", "run" ]

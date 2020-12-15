@@ -12,5 +12,6 @@ services:
       args:
         MODEL_SERVER_ADDRESS: serve:8500
     image: aleksas/lt-stress-query:0.0.2
+    network_mode: host
     depends_on:
       - serve

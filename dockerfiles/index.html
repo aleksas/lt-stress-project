@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            $(document).ready(function(){
+              $("button").click(function(){
+                var payload = { "text": $('textarea#text').val() };
+                $.ajax({
+                    type: "POST",
+                    url: "/api/stress",
+                    data: JSON.stringify( payload ),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(data){
+                        $('div#stressed-text').text(data['stressed-text']);
+                    },
+                    error: function(errMsg) {
+                        alert(errMsg);
+                    }
+                });
+              });
+            });
+        </script>
+    </head>
+    <body>
+        <textarea id="text"></textarea> <div id="stressed-text"></div>
+        <button>stress</button>
+    </body>
+</html>
