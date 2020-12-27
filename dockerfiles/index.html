@@ -2,29 +2,54 @@
 <html>
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" crossorigin="anonymous">
+
         <script>
             $(document).ready(function(){
-              $("button").click(function(){
-                var payload = { "input": $('textarea#text').val() };
-                $.ajax({
-                    type: "POST",
-                    url: "/api/stress",
-                    data: JSON.stringify( payload ),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function(data){
-                        $('div#output').text(data['output']);
-                    },
-                    error: function(errMsg) {
-                        alert(errMsg);
-                    }
+                function process() {                    
+                    var payload = { "input": $('textarea#input').val() };
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/stress",
+                        data: JSON.stringify( payload ),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function(data){
+                            $('textarea#output').text(data['output']);
+                        },
+                        error: function(errMsg) {
+                            alert(errMsg);
+                        }
+                    });
+                }
+                
+                $('textarea#input').bind('input propertychange', function() {
+                    process();
                 });
-              });
             });
         </script>
     </head>
     <body>
-        <textarea id="text"></textarea> <div id="output"></div>
-        <button>stress</button>
+        <div class="container-fluid text-center">
+            <div class="row">
+                <div class="col-xs-4 col-xs-offset-2">
+                    <textarea
+                        id="input"
+                        class="form-control"
+                        rows="8"
+                    ></textarea>
+                </div>
+    
+                <div class="col-xs-4">
+                    <textarea
+                        id="output"
+                        class="form-control"
+                        rows="8"
+                        readonly
+                    ></textarea>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
