@@ -5,7 +5,7 @@
         <script>
             $(document).ready(function(){
               $("button").click(function(){
-                var payload = { "text": $('textarea#text').val() };
+                var payload = { "input": $('textarea#text').val() };
                 $.ajax({
                     type: "POST",
                     url: "/api/stress",
@@ -13,7 +13,7 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function(data){
-                        $('div#stressed-text').text(data['stressed-text']);
+                        $('div#output').text(data['output']);
                     },
                     error: function(errMsg) {
                         alert(errMsg);
@@ -24,7 +24,7 @@
         </script>
     </head>
     <body>
-        <textarea id="text"></textarea> <div id="stressed-text"></div>
+        <textarea id="text"></textarea> <div id="output"></div>
         <button>stress</button>
     </body>
 </html>
