@@ -25,3 +25,5 @@ docker run  aleksas/lt-stress-query:0.0.2
 
 # Compose
 Run `docker-compose up` to run a flask web service. 
+
+Open browser to [localhost:8080](http://localhost:8080) 
