@@ -22,7 +22,7 @@ tensorflow-estimator==1.15.1
 tensorflow-datasets<=3.0.0
 tensorflow-serving-api==1.15.0
 tensorflow_hub==0.8.0
-tensorflow==1.15.3
+tensorflow==2.5.1
 tensor2tensor==1.15.7
 termcolor==1.1.0
 werkzeug==1.0.1
